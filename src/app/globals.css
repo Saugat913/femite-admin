@@ -1,26 +1,148 @@
 @import "tailwindcss";
 
+/* Black and White Admin Theme */
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #000000;
+  --card: #ffffff;
+  --card-foreground: #000000;
+  --popover: #ffffff;
+  --popover-foreground: #000000;
+  --primary: #000000;
+  --primary-foreground: #ffffff;
+  --secondary: #f5f5f5;
+  --secondary-foreground: #000000;
+  --muted: #f5f5f5;
+  --muted-foreground: #666666;
+  --accent: #f5f5f5;
+  --accent-foreground: #000000;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: #e5e5e5;
+  --input: #ffffff;
+  --ring: #000000;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  line-height: 1.6;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Custom focus styles */
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2;
+}
+
+/* Table styles */
+.table-auto {
+  border-collapse: collapse;
+}
+
+.table-auto th,
+.table-auto td {
+  border: 1px solid var(--border);
+}
+
+/* Loading animation */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Card hover effects */
+.card-hover {
+  @apply transition-all duration-200 hover:shadow-lg hover:scale-[1.02];
+}
+
+/* Status badges */
+.status-pending {
+  @apply bg-yellow-100 text-yellow-800 border border-yellow-200;
+}
+
+.status-paid {
+  @apply bg-green-100 text-green-800 border border-green-200;
+}
+
+.status-shipped {
+  @apply bg-blue-100 text-blue-800 border border-blue-200;
+}
+
+.status-cancelled {
+  @apply bg-red-100 text-red-800 border border-red-200;
+}
+
+.status-delivered {
+  @apply bg-purple-100 text-purple-800 border border-purple-200;
+}
+
+/* Form styles */
+.form-input {
+  @apply block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black focus:ring-1 sm:text-sm;
+}
+
+.form-label {
+  @apply block text-sm font-medium text-gray-700 mb-2;
+}
+
+.btn {
+  @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
+}
+
+.btn-primary {
+  @apply bg-black text-white hover:bg-gray-800 focus:ring-black;
+}
+
+.btn-secondary {
+  @apply bg-white text-black border border-gray-300 hover:bg-gray-50 focus:ring-gray-300;
+}
+
+.btn-destructive {
+  @apply bg-red-600 text-white hover:bg-red-700 focus:ring-red-600;
+}
+
+.btn-sm {
+  @apply h-9 px-3;
+}
+
+.btn-md {
+  @apply h-10 px-4 py-2;
+}
+
+.btn-lg {
+  @apply h-11 px-8;
 }

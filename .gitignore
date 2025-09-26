@@ -19,6 +19,7 @@
 
 # production
 /build
+/dist
 
 # misc
 .DS_Store
@@ -39,3 +40,127 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+.nyc_output/
+
+# Test files and scripts
+test-*.js
+test-*.ts
+*.test.js
+*.test.ts
+*.spec.js
+*.spec.ts
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Database files
+*.sqlite
+*.db
+
+# Documentation that shouldn't be in repo
+/docs/
+/documentation/
+
+# Backup files
+*.backup
+*.bak
+*.orig
+
+# Lock files (keep package-lock.json but ignore others)
+yarn.lock
+pnpm-lock.yaml
+
+# Local development files
+.local/
+
+# Storybook build outputs
+storybook-static/
+
+# Analysis and documentation directories
+/docs/
+/documentation/
+/analyze/
+analysis/
+
+# Production secrets and config
+.env.production.local
+.env.staging.local
+secrets/
+config/production/
+config/staging/
+
+# Security files
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+secrets.json
+service-account.json
+
+# Monitoring and analytics
+.sentry/
+.bugsnag/
+monitoring/
+analytics/
+
+# Deployment files
+docker-compose.override.yml
+docker-compose.prod.yml
+kubernetes/
+helm/
+terraform/
+.terraform/
+*.tfstate*
+
+# CI/CD artifacts
+.github/secrets/
+.circleci/config.local.yml
+.jenkins/
+build-artifacts/
+dist-artifacts/
+
+# Cache and temporary production files
+.next/cache/
+.turbo/
+tmp/
+temp/
+*.cache
+
+# Performance and profiling
+profile/
+benchmark/
+perf/
+*.cpuprofile
+*.heapprofile

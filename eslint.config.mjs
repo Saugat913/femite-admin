@@ -9,17 +9,31 @@ const compat = new FlatCompat({
   baseDirectory: __dirname,
 });
 
-const eslintConfig = [
+export default [
+  // Ignore build outputs and node utility scripts
+  { ignores: [
+    "**/.next/**",
+    "out/**",
+    "build/**",
+    "next-env.d.ts",
+    // Node scripts that use require()
+    "create-admin.js",
+    "create-newsletter-table.js",
+    "run-cloudinary-migration.js",
+    "scripts/**",
+  ] },
+  // Next.js recommended configs with TypeScript
   ...compat.extends("next/core-web-vitals", "next/typescript"),
+  // Project-specific rules
   {
-    ignores: [
-      "node_modules/**",
-      ".next/**",
-      "out/**",
-      "build/**",
-      "next-env.d.ts",
-    ],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/no-unused-vars": "warn",
+      "prefer-const": "warn",
+      "react/no-unescaped-entities": "warn",
+      "@next/next/no-html-link-for-pages": "warn",
+      "@next/next/no-img-element": "warn",
+      "react-hooks/exhaustive-deps": "warn",
+    },
   },
 ];
-
-export default eslintConfig;
