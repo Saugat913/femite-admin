@@ -1,65 +1,82 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
-/node_modules
-/.pnp
+# Dependencies
+node_modules/
+.pnp
 .pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
 
-# testing
-/coverage
-
-# next.js
+# Next.js
 /.next/
 /out/
+.turbo/
 
-# production
+# Production builds
 /build
 /dist
 
-# misc
-.DS_Store
-*.pem
+# Environment files
+.env*
+!.env.example
 
-# debug
+# Logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+*.log
+logs/
 
-# env files (can opt-in for committing if needed)
-.env*
+# Testing
+/coverage
+.nyc_output/
 
-# vercel
-.vercel
+# Temporary files
+*.tmp
+*.temp
+.cache/
+tmp/
+temp/
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+# OS files
+.DS_Store
+.DS_Store?
+Thumbs.db
+ehthumbs.db
+._*
+.Spotlight-V100
+.Trashes
 
-# IDE and Editor files
+# IDE files (optional - remove if team uses same IDE)
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
+# TypeScript
+*.tsbuildinfo
 
-# Logs
-*.log
-logs/
+# Database files
+*.sqlite
+*.db
+
+# Security files
+*.pem
+*.key
+*.crt
+secrets.json
+service-account.json
+
+# Deployment
+.vercel
+docker-compose.override.yml
+
+# Performance profiling
+*.cpuprofile
+*.heapprofile
+
+# Backup files
+*.backup
+*.bak
+*.orig
 
 # Runtime data
 pids/
@@ -67,100 +84,6 @@ pids/
 *.seed
 *.pid.lock
 
-# Coverage directory used by tools like istanbul
-coverage/
-.nyc_output/
 
-# Test files and scripts
-test-*.js
-test-*.ts
-*.test.js
-*.test.ts
-*.spec.js
-*.spec.ts
-
-# Temporary files
-*.tmp
-*.temp
-.cache/
-
-# Database files
-*.sqlite
-*.db
-
-# Documentation that shouldn't be in repo
-/docs/
-/documentation/
-
-# Backup files
-*.backup
-*.bak
-*.orig
-
-# Lock files (keep package-lock.json but ignore others)
-yarn.lock
-pnpm-lock.yaml
-
-# Local development files
-.local/
-
-# Storybook build outputs
-storybook-static/
-
-# Analysis and documentation directories
-/docs/
-/documentation/
-/analyze/
-analysis/
-
-# Production secrets and config
-.env.production.local
-.env.staging.local
-secrets/
-config/production/
-config/staging/
-
-# Security files
-*.pem
-*.key
-*.crt
-*.p12
-*.pfx
-secrets.json
-service-account.json
-
-# Monitoring and analytics
-.sentry/
-.bugsnag/
-monitoring/
-analytics/
-
-# Deployment files
-docker-compose.override.yml
-docker-compose.prod.yml
-kubernetes/
-helm/
-terraform/
-.terraform/
-*.tfstate*
-
-# CI/CD artifacts
-.github/secrets/
-.circleci/config.local.yml
-.jenkins/
-build-artifacts/
-dist-artifacts/
-
-# Cache and temporary production files
-.next/cache/
-.turbo/
-tmp/
-temp/
-*.cache
-
-# Performance and profiling
-profile/
-benchmark/
-perf/
-*.cpuprofile
-*.heapprofile
+dirty/
+docs/
