@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 import { query } from '@/lib/db'
+import fs from 'fs'
+import path from 'path'
 
 /**
  * Health check endpoint for monitoring and load balancers
@@ -33,14 +35,12 @@ export async function GET() {
     // Get deployment info if available
     let deploymentInfo = null
     try {
-      const fs = require('fs')
-      const path = require('path')
       const infoPath = path.join(process.cwd(), 'deployment-info.json')
       
       if (fs.existsSync(infoPath)) {
         deploymentInfo = JSON.parse(fs.readFileSync(infoPath, 'utf8'))
       }
-    } catch (error) {
+    } catch {
       // Deployment info is optional
     }
     

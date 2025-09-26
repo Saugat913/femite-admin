@@ -36,7 +36,6 @@ const nextConfig: NextConfig = {
   compress: true,
   
   // Build optimization
-  swcMinify: true,
   experimental: {
     optimizeCss: true,
     optimizePackageImports: ['lucide-react'],
