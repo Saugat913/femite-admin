@@ -28,10 +28,11 @@ interface ProductsPageState {
   selectedProducts: string[]
 }
 
-function ProductRow({ product, onSelect, isSelected }: {
+function ProductRow({ product, onSelect, isSelected, onDelete }: {
   product: Product
   onSelect: (id: string) => void
   isSelected: boolean
+  onDelete: (id: string, name: string) => void
 }) {
   const getStockStatus = (stock: number, threshold: number) => {
     if (stock === 0) return { text: 'Out of Stock', color: 'text-red-600 bg-red-50' }
@@ -103,6 +104,7 @@ function ProductRow({ product, onSelect, isSelected }: {
             <Edit className="w-4 h-4" />
           </Link>
           <button 
+            onClick={() => onDelete(product.id, product.name)}
             className="text-red-600 hover:text-red-800"
             title="Delete product"
           >
@@ -204,6 +206,39 @@ export default function ProductsPage() {
       ...prev,
       filters: { ...prev.filters, page }
     }))
+  }
+
+  const handleDeleteProduct = async (productId: string, productName: string) => {
+    if (!confirm(`Are you sure you want to delete "${productName}"? This action cannot be undone.`)) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/admin/products/${productId}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      })
+
+      if (response.ok) {
+        // Remove from local state
+        setState(prev => ({
+          ...prev,
+          products: prev.products.filter(p => p.id !== productId),
+          selectedProducts: prev.selectedProducts.filter(id => id !== productId),
+          total: prev.total - 1
+        }))
+        
+        // Show success message (you can replace with toast notification)
+        alert('Product deleted successfully')
+      } else {
+        const errorData = await response.json()
+        alert(errorData.error || 'Failed to delete product')
+      }
+    } catch (error) {
+      console.error('Delete error:', error)
+      alert('Failed to delete product. Please try again.')
+    }
+  })
   }
 
   if (state.loading) {
@@ -370,6 +405,7 @@ export default function ProductsPage() {
                     key={product.id} 
                     product={product}
                     onSelect={handleSelectProduct}
+                    onDelete={handleDeleteProduct}
                     isSelected={state.selectedProducts.includes(product.id)}
                   />
                 ))

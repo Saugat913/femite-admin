@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { query } from '@/lib/db'
 import { emailService } from '@/lib/email-service'
-import { revalidateAfterProductChange } from '@/lib/revalidation-service'
+import { revalidateAfterProductChange } from '@/lib/enhanced-revalidation-service'
 
 export async function GET(request: NextRequest) {
   try {
@@ -177,8 +177,8 @@ export async function POST(request: NextRequest) {
 
     const createdProduct = productWithCategories.rows[0]
     
-    // Trigger client site cache revalidation (async, don't wait for completion)
-    revalidateAfterProductChange(createdProduct.id)
+    // Trigger client site cache revalidation for new product with image (async, don't wait for completion)
+    revalidateAfterProductChange(createdProduct.id, !!image_url)
     
     // Send newsletter announcement to subscribers (async, don't wait for completion)
     setImmediate(async () => {

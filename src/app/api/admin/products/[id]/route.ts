@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { query } from '@/lib/db'
-import { revalidateAfterProductChange } from '@/lib/revalidation-service'
+import { revalidateAfterProductChange } from '@/lib/enhanced-revalidation-service'
 
 export async function GET(
   request: NextRequest,
@@ -91,6 +91,14 @@ export async function PUT(
     }
 
     const oldProduct = existingProduct.rows[0]
+    
+    // Check if image was updated
+    const imageWasUpdated = oldProduct.image_url !== image_url || 
+                           oldProduct.cloudinary_public_id !== cloudinary_public_id
+    
+    if (imageWasUpdated) {
+      console.log(`🖼️ Image updated for product ${id}: ${oldProduct.image_url} → ${image_url}`)
+    }
 
     // Update product
     const result = await query(
@@ -168,8 +176,8 @@ export async function PUT(
       [id]
     )
 
-    // Trigger client site cache revalidation (async, don't wait for completion)
-    revalidateAfterProductChange(id)
+    // Trigger client site cache revalidation with image update flag (async, don't wait for completion)
+    revalidateAfterProductChange(id, imageWasUpdated)
 
     return NextResponse.json({
       success: true,
