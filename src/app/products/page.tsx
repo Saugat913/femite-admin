@@ -238,7 +238,6 @@ export default function ProductsPage() {
       console.error('Delete error:', error)
       alert('Failed to delete product. Please try again.')
     }
-  })
   }
 
   if (state.loading) {
