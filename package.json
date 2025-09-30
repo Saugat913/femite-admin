@@ -3,15 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
-    "build:prod": "NODE_ENV=production next build",
+    "dev": "next dev",
+    "build": "next build",
     "start": "next start",
-    "start:prod": "NODE_ENV=production next start",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "type-check": "tsc --noEmit",
     "setup-db": "node scripts/setup-database.js",
+    "vercel-build": "next build",
+    "vercel-build-strict": "npm run type-check && next build",
+    "vercel-check": "node scripts/vercel-build-check.js",
+    "fix-types": "node scripts/fix-typescript-errors.js",
     "deploy": "./scripts/deploy.sh",
     "docker:build": "docker build -t hemp-admin .",
     "docker:run": "docker-compose -f docker-compose.prod.yml up -d",
@@ -40,7 +42,9 @@
     "react-dom": "19.1.0",
     "recharts": "^3.2.0",
     "uuid": "^13.0.0",
-    "critters": "^0.0.20"
+    "critters": "^0.0.20",
+    "@neshca/cache-handler": "^1.4.0",
+    "ioredis": "^5.3.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

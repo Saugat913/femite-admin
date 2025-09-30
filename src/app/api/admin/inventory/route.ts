@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
       `SELECT COUNT(*) FROM products ${whereClause}`,
       queryParams
     )
-    const total = parseInt(countResult.rows[0].count)
+    const total = parseInt(countResult?.rows[0]?.count || '0')
 
     // Get inventory items with pagination
     const inventoryResult = await query(
@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
       WHERE track_inventory = true
     `)
 
-    const stats = statsResult.rows[0] || {
+    const stats = statsResult?.rows[0] || {
       total_products: 0,
       in_stock: 0,
       low_stock: 0,
@@ -99,12 +99,12 @@ export async function GET(request: NextRequest) {
     `)
 
     // Format inventory items with status
-    const inventoryItems = inventoryResult.rows.map(item => ({
+    const inventoryItems = inventoryResult?.rows.map(item => ({
       ...item,
       price: parseFloat(item.price),
       status: item.stock === 0 ? 'out_of_stock' : 
               item.stock <= item.low_stock_threshold ? 'low_stock' : 'in_stock'
-    }))
+    })) || []
 
     return NextResponse.json({
       success: true,
@@ -123,7 +123,7 @@ export async function GET(request: NextRequest) {
           outOfStock: parseInt(stats.out_of_stock),
           totalValue: parseFloat(stats.total_inventory_value)
         },
-        recentMovements: movementsResult.rows
+        recentMovements: movementsResult?.rows || []
       }
     })
 
@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
       [productId]
     )
 
-    if (productResult.rows.length === 0) {
+    if (!productResult || productResult.rows.length === 0) {
       return NextResponse.json(
         { success: false, error: 'Product not found' },
         { status: 404 }

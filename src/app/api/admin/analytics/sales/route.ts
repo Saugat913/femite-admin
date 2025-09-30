@@ -54,13 +54,13 @@ export async function GET(request: NextRequest) {
     const salesResult = await query(salesQuery, params)
 
     // Format the data
-    const salesData = salesResult.rows.map(row => ({
+    const salesData = salesResult?.rows?.map(row => ({
       date: row.date,
       orders: parseInt(row.orders),
       sales: parseFloat(row.sales),
       unique_customers: parseInt(row.unique_customers),
       avg_order_value: parseFloat(row.avg_order_value)
-    }))
+    })) || []
 
     return NextResponse.json({
       success: true,

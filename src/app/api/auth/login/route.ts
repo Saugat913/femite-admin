@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
       [email.toLowerCase(), 'admin']
     )
 
-    if (result.rows.length === 0) {
+    if (!result || result.rows.length === 0) {
       return NextResponse.json({ error: 'Invalid admin credentials' }, { status: 401 })
     }
 

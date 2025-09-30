@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
       [productId]
     )
 
-    if (productResult.rows.length === 0) {
+    if (!productResult || productResult.rows.length === 0) {
       return NextResponse.json(
         { success: false, error: 'Product not found' },
         { status: 404 }
@@ -114,7 +114,7 @@ export async function POST(request: NextRequest) {
         [productId]
       )
 
-      const updatedProduct = updatedProductResult.rows[0]
+      const updatedProduct = updatedProductResult?.rows[0]
 
       return NextResponse.json({
         success: true,

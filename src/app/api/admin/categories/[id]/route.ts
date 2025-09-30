@@ -19,7 +19,7 @@ export async function GET(
       GROUP BY c.id
     `, [id])
 
-    if (result.rows.length === 0) {
+    if (!result || result.rows.length === 0) {
       return NextResponse.json(
         { success: false, error: 'Category not found' },
         { status: 404 }
@@ -63,7 +63,7 @@ export async function PUT(
       [id]
     )
 
-    if (existingCategory.rows.length === 0) {
+    if (!existingCategory || existingCategory.rows.length === 0) {
       return NextResponse.json(
         { success: false, error: 'Category not found' },
         { status: 404 }
@@ -76,7 +76,7 @@ export async function PUT(
       [name, id]
     )
 
-    if (duplicateCheck.rows.length > 0) {
+    if (duplicateCheck && duplicateCheck.rows.length > 0) {
       return NextResponse.json(
         { success: false, error: 'Category with this name already exists' },
         { status: 400 }
@@ -96,7 +96,7 @@ export async function PUT(
 
     return NextResponse.json({
       success: true,
-      data: result.rows[0],
+      data: result?.rows[0],
       message: 'Category updated successfully'
     })
 
@@ -122,7 +122,7 @@ export async function DELETE(
       [id]
     )
 
-    if (existingCategory.rows.length === 0) {
+    if (!existingCategory || existingCategory.rows.length === 0) {
       return NextResponse.json(
         { success: false, error: 'Category not found' },
         { status: 404 }
@@ -135,7 +135,7 @@ export async function DELETE(
       [id]
     )
 
-    if (parseInt(productCategories.rows[0].count) > 0) {
+    if (productCategories && parseInt(productCategories.rows[0]?.count || '0') > 0) {
       return NextResponse.json(
         { success: false, error: 'Cannot delete category that is assigned to products' },
         { status: 400 }

@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
       `SELECT COUNT(*) FROM users ${whereClause}`,
       queryParams
     )
-    const total = parseInt(countResult.rows[0].count)
+    const total = parseInt(countResult?.rows[0]?.count || '0')
 
     // Get users with pagination
     const usersResult = await query(
@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
       FROM users
     `)
 
-    const stats = statsResult.rows[0] || {
+    const stats = statsResult?.rows[0] || {
       admins: 0,
       customers: 0,
       new_this_month: 0,
@@ -78,7 +78,7 @@ export async function GET(request: NextRequest) {
     }
 
     const responseData = {
-      data: usersResult.rows,
+      data: usersResult?.rows || [],
       total,
       page,
       pageSize: limit,
@@ -97,7 +97,7 @@ export async function GET(request: NextRequest) {
       }
     }
     
-    console.log('Users API response:', { total, page, limit, rowsReturned: usersResult.rows.length })
+    console.log('Users API response:', { total, page, limit, rowsReturned: usersResult?.rows.length || 0 })
     
     return NextResponse.json({
       success: true,
@@ -140,7 +140,7 @@ export async function POST(request: NextRequest) {
       [email]
     )
 
-    if (existingUser.rows.length > 0) {
+    if (existingUser?.rows && existingUser.rows.length > 0) {
       return NextResponse.json(
         { success: false, error: 'User with this email already exists' },
         { status: 400 }
@@ -159,7 +159,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      data: result.rows[0]
+      data: result?.rows[0]
     })
 
   } catch (error) {

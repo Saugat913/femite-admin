@@ -1,20 +1,17 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { 
   Package, 
   Plus, 
   Search, 
-  Filter, 
   Edit, 
   Trash2, 
   Eye,
-  MoreHorizontal,
-  AlertTriangle,
-  CheckCircle,
-  XCircle
+  AlertTriangle
 } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { productsApi } from '@/lib/api'
 import type { Product, PaginatedResponse, SearchFilters } from '@/types'
 
@@ -55,9 +52,11 @@ function ProductRow({ product, onSelect, isSelected, onDelete }: {
       <td className="px-4 py-3">
         <div className="flex items-center">
           {product.image_url ? (
-            <img 
+            <Image 
               src={product.image_url} 
               alt={product.name}
+              width={40}
+              height={40}
               className="w-10 h-10 rounded object-cover mr-3"
             />
           ) : (
@@ -134,14 +133,14 @@ export default function ProductsPage() {
     selectedProducts: []
   })
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       setState(prev => ({ ...prev, loading: true, error: null }))
       
       // Convert filters to string record
       const filtersAsStrings = Object.fromEntries(
         Object.entries(state.filters)
-          .filter(([_, value]) => value !== undefined && value !== '')
+          .filter(([, value]) => value !== undefined && value !== '')
           .map(([key, value]) => [key, String(value)])
       )
       
@@ -170,11 +169,11 @@ export default function ProductsPage() {
         loading: false
       }))
     }
-  }
+  }, [state.filters])
 
   useEffect(() => {
     fetchProducts()
-  }, [state.filters])
+  }, [fetchProducts])
 
   const handleSearch = (search: string) => {
     setState(prev => ({
@@ -209,17 +208,14 @@ export default function ProductsPage() {
   }
 
   const handleDeleteProduct = async (productId: string, productName: string) => {
-    if (!confirm(`Are you sure you want to delete "${productName}"? This action cannot be undone.`)) {
+    if (!confirm(`Are you sure you want to delete &quot;${productName}&quot;? This action cannot be undone.`)) {
       return
     }
 
     try {
-      const response = await fetch(`/api/admin/products/${productId}`, {
-        method: 'DELETE',
-        credentials: 'include'
-      })
+      const response = await productsApi.delete(productId)
 
-      if (response.ok) {
+      if (response.success) {
         // Remove from local state
         setState(prev => ({
           ...prev,
@@ -231,8 +227,7 @@ export default function ProductsPage() {
         // Show success message (you can replace with toast notification)
         alert('Product deleted successfully')
       } else {
-        const errorData = await response.json()
-        alert(errorData.error || 'Failed to delete product')
+        alert(response.error || 'Failed to delete product')
       }
     } catch (error) {
       console.error('Delete error:', error)

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { query } from '@/lib/db'
-import { emailService } from '@/lib/email-service'
 import { revalidateAfterProductChange } from '@/lib/enhanced-revalidation-service'
+import { cachedQuery, CACHE_TTL, CACHE_TAGS, cache } from '@/lib/cache'
+import { emailService } from '@/lib/email-service'
 
 export async function GET(request: NextRequest) {
   try {
@@ -50,7 +51,7 @@ export async function GET(request: NextRequest) {
       ${whereClause}
     `
     const countResult = await query(countQuery, params)
-    const total = parseInt(countResult.rows[0].count)
+    const total = parseInt(countResult?.rows[0]?.count || '0')
 
     // Get products with categories
     const productsQuery = `
@@ -79,7 +80,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: {
-        data: result.rows,
+        data: result?.rows || [],
         total,
         page,
         pageSize,
@@ -133,7 +134,7 @@ export async function POST(request: NextRequest) {
       [name, description, price, stock, image_url, cloudinary_public_id, image_width, image_height, low_stock_threshold, track_inventory]
     )
 
-    const product = productResult.rows[0]
+    const product = productResult?.rows[0]
 
     // Add categories if provided
     if (category_ids.length > 0) {
@@ -175,7 +176,7 @@ export async function POST(request: NextRequest) {
       [product.id]
     )
 
-    const createdProduct = productWithCategories.rows[0]
+    const createdProduct = productWithCategories?.rows[0]
     
     // Trigger client site cache revalidation for new product with image (async, don't wait for completion)
     revalidateAfterProductChange(createdProduct.id, !!image_url)
@@ -190,7 +191,7 @@ export async function POST(request: NextRequest) {
           'SELECT email FROM newsletter_subscriptions WHERE active = true ORDER BY subscribed_at DESC'
         )
         
-        if (subscribersResult.rows.length > 0) {
+        if (subscribersResult?.rows && subscribersResult.rows.length > 0) {
           const subscriberEmails = subscribersResult.rows.map((row: any) => row.email)
           
           // Send bulk newsletter announcement

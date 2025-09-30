@@ -33,20 +33,21 @@ export async function GET(request: NextRequest) {
     const result = await query(lowStockQuery)
 
     // Calculate stats
-    const outOfStock = result.rows.filter(p => p.stock === 0)
-    const lowStock = result.rows.filter(p => p.stock > 0 && p.stock <= p.low_stock_threshold)
+    const rows = result?.rows || []
+    const outOfStock = rows.filter(p => p.stock === 0)
+    const lowStock = rows.filter(p => p.stock > 0 && p.stock <= p.low_stock_threshold)
     
     const stats = {
-      total_low_stock_items: result.rows.length,
+      total_low_stock_items: rows.length,
       out_of_stock_items: outOfStock.length,
       low_stock_items: lowStock.length,
-      total_value_at_risk: result.rows.reduce((sum, p) => sum + (parseFloat(p.price) * p.stock), 0)
+      total_value_at_risk: rows.reduce((sum, p) => sum + (parseFloat(p.price) * p.stock), 0)
     }
 
     return NextResponse.json({
       success: true,
       data: {
-        products: result.rows,
+        products: rows,
         stats
       }
     })

@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
       ${whereClause}
     `
     const countResult = await query(countQuery, params)
-    const total = parseInt(countResult.rows[0].count)
+    const total = parseInt(countResult?.rows[0]?.count || '0')
 
     // Get orders with user info and item count
     const ordersQuery = `
@@ -93,12 +93,12 @@ export async function GET(request: NextRequest) {
     const result = await query(ordersQuery, params)
 
     // Format orders for response
-    const orders = result.rows.map(order => ({
+    const orders = result?.rows.map(order => ({
       ...order,
       user: {
         email: order.user_email
       }
-    }))
+    })) || []
 
     const totalPages = Math.ceil(total / pageSize)
 

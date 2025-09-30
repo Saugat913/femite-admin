@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     `)
 
     // Group settings by category
-    const settingsByCategory = result.rows.reduce((acc, setting) => {
+    const settingsByCategory = (result?.rows || []).reduce((acc, setting) => {
       if (!acc[setting.category]) {
         acc[setting.category] = {}
       }

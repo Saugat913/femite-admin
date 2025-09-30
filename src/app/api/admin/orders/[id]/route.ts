@@ -35,7 +35,7 @@ export async function GET(
       WHERE o.id = $1
     `, [orderId])
 
-    if (orderResult.rows.length === 0) {
+    if (!orderResult || orderResult.rows.length === 0) {
       return NextResponse.json(
         { success: false, error: 'Order not found' },
         { status: 404 }
@@ -73,7 +73,7 @@ export async function GET(
         firstName: order.customer_first_name,
         lastName: order.customer_last_name
       },
-      items: itemsResult.rows.map(item => ({
+      items: itemsResult?.rows.map(item => ({
         id: item.id,
         productId: item.product_id,
         quantity: item.quantity,
@@ -83,7 +83,7 @@ export async function GET(
           sku: item.product_sku,
           image: item.product_image
         }
-      }))
+      })) || []
     }
 
     return NextResponse.json({
@@ -122,7 +122,7 @@ export async function PUT(
       [orderId]
     )
 
-    if (existingOrder.rows.length === 0) {
+    if (!existingOrder || existingOrder.rows.length === 0) {
       return NextResponse.json(
         { success: false, error: 'Order not found' },
         { status: 404 }
@@ -176,7 +176,7 @@ export async function PUT(
       RETURNING id, total, status, created_at, updated_at
     `, updateValues)
 
-    const updatedOrder = result.rows[0]
+    const updatedOrder = result?.rows[0]
     updatedOrder.total = parseFloat(updatedOrder.total) / 100 // Convert cents to dollars
 
     return NextResponse.json({

@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
       ${whereClause}
     `
     const countResult = await query(countQuery, params)
-    const total = parseInt(countResult.rows[0].count)
+    const total = parseInt(countResult?.rows[0]?.count || '0')
 
     // Get movements with product information
     const movementsQuery = `
@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
     const result = await query(movementsQuery, params)
 
     // Format the movements data
-    const movements = result.rows.map(movement => ({
+    const movements = result?.rows.map(movement => ({
       id: movement.id,
       product_id: movement.product_id,
       product_name: movement.product_name,
@@ -94,7 +94,7 @@ export async function GET(request: NextRequest) {
           total,
           totalPages
         },
-        typeStats: typeStatsResult.rows
+        typeStats: typeStatsResult?.rows || []
       }
     })
 

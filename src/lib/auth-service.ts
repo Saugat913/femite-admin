@@ -62,7 +62,7 @@ export class AuthService {
         [email, 'admin']
       )
 
-      if (result.rows.length === 0) {
+      if (!result || result.rows.length === 0) {
         return null
       }
 
@@ -96,7 +96,7 @@ export class AuthService {
         [id]
       )
 
-      if (result.rows.length === 0) {
+      if (!result || result.rows.length === 0) {
         return null
       }
 
@@ -116,7 +116,7 @@ export class AuthService {
         [email]
       )
 
-      if (existingUser.rows.length > 0) {
+      if (existingUser?.rows && existingUser.rows.length > 0) {
         throw new Error('User already exists')
       }
 
@@ -129,7 +129,7 @@ export class AuthService {
         [email, hashedPassword, 'admin']
       )
 
-      return result.rows[0]
+      return result?.rows[0]
     } catch (error) {
       console.error('Create admin user error:', error)
       return null
@@ -161,7 +161,7 @@ export class AuthService {
         [userId]
       )
 
-      return result.rows.length > 0 && result.rows[0].role === 'admin'
+      return Boolean(result?.rows && result.rows.length > 0 && result.rows[0].role === 'admin')
     } catch (error) {
       console.error('Admin check error:', error)
       return false

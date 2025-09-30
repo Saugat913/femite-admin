@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      data: result.rows
+      data: result?.rows || []
     })
 
   } catch (error) {
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
       [name]
     )
 
-    if (existingCategory.rows.length > 0) {
+    if (existingCategory && existingCategory.rows.length > 0) {
       return NextResponse.json(
         { success: false, error: 'Category with this name already exists' },
         { status: 400 }
@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      data: result.rows[0],
+      data: result?.rows[0],
       message: 'Category created successfully'
     })
 

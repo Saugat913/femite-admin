@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
     // Get total count
     const countQuery = `SELECT COUNT(*) FROM newsletter_subscriptions ${whereClause}`
     const countResult = await query(countQuery, params)
-    const total = parseInt(countResult.rows[0].count)
+    const total = parseInt(countResult?.rows[0]?.count || '0')
 
     // Get subscriptions with pagination
     const subscriptionsQuery = `
@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
       FROM newsletter_subscriptions
     `)
 
-    const stats = statsResult.rows[0] || {
+    const stats = statsResult?.rows[0] || {
       total_subscribers: 0,
       active_subscribers: 0,
       new_this_month: 0,
@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: {
-        subscriptions: result.rows,
+        subscriptions: result?.rows || [],
         pagination: {
           page,
           pageSize,
@@ -118,7 +118,7 @@ export async function POST(request: NextRequest) {
       [email]
     )
 
-    if (existingResult.rows.length > 0) {
+    if (existingResult && existingResult.rows.length > 0) {
       const existing = existingResult.rows[0]
       if (existing.active) {
         return NextResponse.json(
@@ -136,7 +136,7 @@ export async function POST(request: NextRequest) {
         )
         return NextResponse.json({
           success: true,
-          data: result.rows[0],
+          data: result?.rows[0],
           message: 'Subscription reactivated successfully'
         })
       }
@@ -152,7 +152,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      data: result.rows[0],
+      data: result?.rows[0],
       message: 'Subscription created successfully'
     })
 
@@ -189,7 +189,7 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: `${result.rowCount} subscriptions unsubscribed successfully`
+      message: `${result?.rowCount || 0} subscriptions unsubscribed successfully`
     })
 
   } catch (error) {

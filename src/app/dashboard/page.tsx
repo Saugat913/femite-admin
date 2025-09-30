@@ -65,32 +65,80 @@ export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [refreshing, setRefreshing] = useState(false)
 
   useEffect(() => {
     fetchDashboardData()
   }, [])
 
-  const fetchDashboardData = async () => {
+  const handleRefresh = async () => {
+    setRefreshing(true)
     try {
+      const response = await fetch('/api/admin/dashboard?refresh=true', {
+        credentials: 'include',
+      })
+      const result = await response.json()
+      if (result.success) {
+        setData(result.data)
+        setError('')
+      } else {
+        setError(result.error || 'Failed to refresh dashboard')
+      }
+    } catch (err: any) {
+      setError('Failed to refresh dashboard')
+      console.error('Dashboard refresh error:', err)
+    } finally {
+      setRefreshing(false)
+    }
+  }
+
+  const fetchDashboardData = async (retryCount = 0, maxRetries = 3) => {
+    try {
+      setError('') // Clear previous errors
+      
       const response = await fetch('/api/admin/dashboard', {
         credentials: 'include',
       })
 
       if (!response.ok) {
-        throw new Error('Failed to fetch dashboard data')
+        throw new Error(`Server returned ${response.status}: ${response.statusText}`)
       }
 
       const result = await response.json()
       if (result.success) {
         setData(result.data)
+        console.log('Dashboard data loaded successfully', {
+          cached: result.cached,
+          timestamp: result.timestamp
+        })
       } else {
         setError(result.error || 'Failed to load dashboard')
       }
-    } catch (err) {
-      console.error('Dashboard fetch error:', err)
-      setError('Failed to load dashboard data')
+    } catch (err: any) {
+      console.error(`Dashboard fetch error (attempt ${retryCount + 1}):`, err)
+      
+      // Retry logic for network errors
+      if (retryCount < maxRetries && 
+          (err.name === 'TypeError' || 
+           err.message?.includes('fetch') ||
+           err.message?.includes('500') ||
+           err.message?.includes('timeout'))) {
+        
+        const delay = Math.min(1000 * Math.pow(2, retryCount), 10000) // Exponential backoff, max 10s
+        console.log(`Retrying dashboard fetch in ${delay}ms...`)
+        
+        setTimeout(() => {
+          fetchDashboardData(retryCount + 1, maxRetries)
+        }, delay)
+        
+        return // Don't set loading to false yet
+      }
+      
+      setError(err.message || 'Failed to load dashboard data')
     } finally {
-      setLoading(false)
+      if (retryCount === 0) { // Only set loading false on first attempt
+        setLoading(false)
+      }
     }
   }
 
@@ -116,9 +164,18 @@ export default function DashboardPage() {
     return (
       <div className="p-6">
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <div className="flex items-center">
-            <AlertTriangle className="w-5 h-5 text-red-600 mr-2" />
-            <span className="text-red-700">{error}</span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <AlertTriangle className="w-5 h-5 text-red-600 mr-2" />
+              <span className="text-red-700">{error}</span>
+            </div>
+            <button
+              onClick={() => fetchDashboardData()}
+              className="btn btn-secondary btn-sm"
+              disabled={loading}
+            >
+              {loading ? 'Retrying...' : 'Retry'}
+            </button>
           </div>
         </div>
       </div>
@@ -176,6 +233,27 @@ export default function DashboardPage() {
 
   return (
     <div className="p-6 space-y-6">
+      {/* Header with Refresh */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+          <p className="text-gray-600 mt-1">Overview of your store performance</p>
+        </div>
+        <button
+          onClick={handleRefresh}
+          disabled={refreshing}
+          className="btn btn-secondary btn-md"
+        >
+          {refreshing ? (
+            <>
+              <div className="animate-spin w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full mr-2" />
+              Refreshing...
+            </>
+          ) : (
+            'Refresh Data'
+          )}
+        </button>
+      </div>
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {stats.map((item) => {

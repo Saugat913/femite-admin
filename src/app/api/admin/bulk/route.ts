@@ -97,7 +97,7 @@ async function handleProductBulkAction(action: string, ids: number[], placeholde
         WHERE oi.product_id IN (${placeholders})
       `, ids)
 
-      if (orderCheckResult.rows.length > 0) {
+      if (orderCheckResult && orderCheckResult.rows.length > 0) {
         throw new Error('Cannot delete products that have been ordered')
       }
 
@@ -144,8 +144,8 @@ async function handleProductBulkAction(action: string, ids: number[], placeholde
   const result = await query(queryText, queryParams)
   return {
     success: true,
-    message: `Successfully ${action.replace('_', ' ')}d ${result.rowCount || 0} product(s)`,
-    affected: result.rowCount || 0
+    message: `Successfully ${action.replace('_', ' ')}d ${result?.rowCount || 0} product(s)`,
+    affected: result?.rowCount || 0
   }
 }
 
@@ -179,8 +179,8 @@ async function handleOrderBulkAction(action: string, ids: number[], placeholders
   const result = await query(queryText, queryParams)
   return {
     success: true,
-    message: `Successfully ${action.replace('_', ' ')}d ${result.rowCount || 0} order(s)`,
-    affected: result.rowCount || 0
+    message: `Successfully ${action.replace('_', ' ')}d ${result?.rowCount || 0} order(s)`,
+    affected: result?.rowCount || 0
   }
 }
 
@@ -197,7 +197,7 @@ async function handleUserBulkAction(action: string, ids: number[], placeholders:
         WHERE user_id IN (${placeholders})
       `, ids)
 
-      if (orderCheckResult.rows.length > 0) {
+      if (orderCheckResult && orderCheckResult.rows.length > 0) {
         throw new Error('Cannot delete users who have placed orders')
       }
 
@@ -233,7 +233,7 @@ async function handleUserBulkAction(action: string, ids: number[], placeholders:
   const result = await query(queryText, queryParams)
   return {
     success: true,
-    message: `Successfully ${action.replace('_', ' ')}d ${result.rowCount || 0} user(s)`,
-    affected: result.rowCount || 0
+    message: `Successfully ${action.replace('_', ' ')}d ${result?.rowCount || 0} user(s)`,
+    affected: result?.rowCount || 0
   }
 }

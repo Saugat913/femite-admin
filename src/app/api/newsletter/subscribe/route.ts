@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
       [email]
     )
 
-    if (existingResult.rows.length > 0) {
+    if (existingResult?.rows && existingResult.rows.length > 0) {
       const existing = existingResult.rows[0]
       if (existing.active) {
         return NextResponse.json(
@@ -101,7 +101,7 @@ export async function DELETE(request: NextRequest) {
       [email]
     )
 
-    if (result.rowCount === 0) {
+    if (!result || result.rowCount === 0) {
       return NextResponse.json(
         { success: false, error: 'Email not found or already unsubscribed' },
         { status: 404 }

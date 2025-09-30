@@ -28,7 +28,7 @@ export async function GET(
       WHERE id = $1
     `, [userId])
 
-    if (result.rows.length === 0) {
+    if (!result || result.rows.length === 0) {
       return NextResponse.json(
         { success: false, error: 'User not found' },
         { status: 404 }
@@ -46,13 +46,13 @@ export async function GET(
       GROUP BY u.id
     `, [userId])
 
-    const stats = statsResult.rows[0] || {
+    const stats = statsResult?.rows[0] || {
       total_orders: 0,
       total_spent: 0
     }
 
     const userData = {
-      ...result.rows[0],
+      ...result?.rows[0],
       stats: {
         totalOrders: parseInt(stats.total_orders),
         totalSpent: parseFloat(stats.total_spent) / 100 // Convert cents to dollars
@@ -111,7 +111,7 @@ export async function PUT(
       [userId]
     )
 
-    if (existingUser.rows.length === 0) {
+    if (!existingUser || existingUser.rows.length === 0) {
       return NextResponse.json(
         { success: false, error: 'User not found' },
         { status: 404 }
@@ -124,7 +124,7 @@ export async function PUT(
       [email, userId]
     )
 
-    if (emailCheck.rows.length > 0) {
+    if (emailCheck?.rows && emailCheck.rows.length > 0) {
       return NextResponse.json(
         { success: false, error: 'Email is already taken by another user' },
         { status: 400 }
@@ -165,7 +165,7 @@ export async function PUT(
 
     return NextResponse.json({
       success: true,
-      data: result.rows[0]
+      data: result?.rows[0]
     })
 
   } catch (error) {
@@ -197,7 +197,7 @@ export async function DELETE(
       [userId]
     )
 
-    if (existingUser.rows.length === 0) {
+    if (!existingUser || existingUser.rows.length === 0) {
       return NextResponse.json(
         { success: false, error: 'User not found' },
         { status: 404 }
@@ -210,7 +210,7 @@ export async function DELETE(
       [userId]
     )
 
-    const orderCount = parseInt(ordersResult.rows[0].order_count)
+    const orderCount = parseInt(ordersResult?.rows[0]?.order_count || '0')
 
     if (orderCount > 0) {
       return NextResponse.json(

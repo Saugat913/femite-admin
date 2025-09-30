@@ -112,49 +112,49 @@ export async function GET(request: NextRequest) {
 
     // Format the data for response
     const overview = {
-      totalOrders: parseInt(ordersResult.rows[0]?.total_orders || '0'),
-      paidOrders: parseInt(ordersResult.rows[0]?.paid_orders || '0'),
-      processingOrders: parseInt(ordersResult.rows[0]?.processing_orders || '0'),
-      shippedOrders: parseInt(ordersResult.rows[0]?.shipped_orders || '0'),
-      pendingOrders: parseInt(ordersResult.rows[0]?.pending_orders || '0'),
+      totalOrders: parseInt(ordersResult?.rows[0]?.total_orders || '0'),
+      paidOrders: parseInt(ordersResult?.rows[0]?.paid_orders || '0'),
+      processingOrders: parseInt(ordersResult?.rows[0]?.processing_orders || '0'),
+      shippedOrders: parseInt(ordersResult?.rows[0]?.shipped_orders || '0'),
+      pendingOrders: parseInt(ordersResult?.rows[0]?.pending_orders || '0'),
       
-      totalRevenue: parseInt(revenueResult.rows[0]?.total_revenue || '0'),
-      monthlyRevenue: parseInt(revenueResult.rows[0]?.monthly_revenue || '0'),
-      weeklyRevenue: parseInt(revenueResult.rows[0]?.weekly_revenue || '0'),
+      totalRevenue: parseInt(revenueResult?.rows[0]?.total_revenue || '0'),
+      monthlyRevenue: parseInt(revenueResult?.rows[0]?.monthly_revenue || '0'),
+      weeklyRevenue: parseInt(revenueResult?.rows[0]?.weekly_revenue || '0'),
       
-      totalCustomers: parseInt(customersResult.rows[0]?.total_customers || '0'),
-      monthlyNewCustomers: parseInt(customersResult.rows[0]?.monthly_new_customers || '0'),
+      totalCustomers: parseInt(customersResult?.rows[0]?.total_customers || '0'),
+      monthlyNewCustomers: parseInt(customersResult?.rows[0]?.monthly_new_customers || '0'),
       
-      totalProducts: parseInt(productsResult.rows[0]?.total_products || '0'),
-      inStockProducts: parseInt(productsResult.rows[0]?.in_stock_products || '0'),
-      lowStockProducts: parseInt(productsResult.rows[0]?.low_stock_products || '0'),
-      outOfStockProducts: parseInt(productsResult.rows[0]?.out_of_stock_products || '0'),
+      totalProducts: parseInt(productsResult?.rows[0]?.total_products || '0'),
+      inStockProducts: parseInt(productsResult?.rows[0]?.in_stock_products || '0'),
+      lowStockProducts: parseInt(productsResult?.rows[0]?.low_stock_products || '0'),
+      outOfStockProducts: parseInt(productsResult?.rows[0]?.out_of_stock_products || '0'),
       
       totalNewsletterSubscribers: 0, // Placeholder - implement if needed
       monthlyNewSubscribers: 0
     }
 
     // Format recent orders
-    const recentOrders = recentOrdersResult.rows.map(order => ({
+    const recentOrders = recentOrdersResult?.rows?.map(order => ({
       id: order.id,
       amount: parseFloat(order.total), // Already in dollars
       status: order.status,
       customerEmail: order.customer_email,
       itemCount: parseInt(order.item_count),
       createdAt: order.created_at
-    }))
+    })) || []
 
     // Format low stock products
-    const lowStockProducts = lowStockResult.rows.map(product => ({
+    const lowStockProducts = lowStockResult?.rows?.map(product => ({
       id: product.id,
       name: product.name,
       stock: product.stock,
       price: parseFloat(product.price), // Already in dollars
       threshold: product.low_stock_threshold
-    }))
+    })) || []
 
     // Format top products
-    const topProducts = topProductsResult.rows.map(product => ({
+    const topProducts = topProductsResult?.rows?.map(product => ({
       product: {
         id: product.id,
         name: product.name,
@@ -162,14 +162,14 @@ export async function GET(request: NextRequest) {
       },
       totalSold: parseInt(product.total_sold),
       revenue: parseFloat(product.total_revenue)
-    }))
+    })) || []
 
     // Format sales trend
-    const salesTrend = salesTrendResult.rows.map(item => ({
+    const salesTrend = salesTrendResult?.rows?.map(item => ({
       date: item.date,
       sales: parseInt(item.sales),
       orders: parseInt(item.orders)
-    }))
+    })) || []
 
     const dashboardData = {
       overview,

@@ -3,7 +3,10 @@
  * 
  * This enhanced service handles triggering cache revalidation on the client-side e-commerce site
  * with configurable timing, retry logic, and image cache busting capabilities.
+ * Now includes local cache invalidation integration.
  */
+
+import { cache, CACHE_TAGS } from './cache'
 
 export interface RevalidationOptions {
   type?: 'product' | 'blog' | 'all'
@@ -143,6 +146,10 @@ class EnhancedRevalidationService {
    * Trigger revalidation for product-related pages with image cache busting
    */
   async revalidateProduct(productId?: string, imageUpdated: boolean = false): Promise<RevalidationResponse> {
+    // Invalidate local cache first
+    cache.invalidateByTags([CACHE_TAGS.PRODUCTS, CACHE_TAGS.DASHBOARD, CACHE_TAGS.ANALYTICS])
+    console.log('🗑️ Invalidated local cache for product changes')
+    
     return this.triggerRevalidation({
       type: 'product',
       id: productId,
@@ -155,6 +162,10 @@ class EnhancedRevalidationService {
    * Trigger revalidation for blog-related pages
    */
   async revalidateBlog(blogSlug?: string, imageUpdated: boolean = false): Promise<RevalidationResponse> {
+    // Invalidate local cache first
+    cache.invalidateByTags([CACHE_TAGS.DASHBOARD])
+    console.log('🗑️ Invalidated local cache for blog changes')
+    
     return this.triggerRevalidation({
       type: 'blog',
       id: blogSlug,
@@ -167,6 +178,10 @@ class EnhancedRevalidationService {
    * Trigger revalidation for all main pages
    */
   async revalidateAll(): Promise<RevalidationResponse> {
+    // Clear all local cache
+    cache.clear()
+    console.log('🗑️ Cleared all local cache for bulk changes')
+    
     return this.triggerRevalidation({
       type: 'all',
       timestamp: new Date().toISOString()

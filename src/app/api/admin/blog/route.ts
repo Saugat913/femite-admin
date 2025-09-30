@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
     // Get total count
     const countQuery = `SELECT COUNT(*) FROM blog_posts ${whereClause}`
     const countResult = await query(countQuery, params)
-    const total = parseInt(countResult.rows[0].count)
+    const total = parseInt(countResult?.rows?.[0]?.count || '0')
 
     // Get blog posts with pagination
     const postsQuery = `
@@ -90,7 +90,7 @@ export async function GET(request: NextRequest) {
       FROM blog_posts
     `)
 
-    const stats = statsResult.rows[0] || {
+    const stats = statsResult?.rows?.[0] || {
       total_posts: 0,
       published_posts: 0,
       draft_posts: 0,
@@ -110,7 +110,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: {
-        posts: result.rows,
+        posts: result?.rows || [],
         pagination: {
           page,
           pageSize,
@@ -124,7 +124,7 @@ export async function GET(request: NextRequest) {
           newThisMonth: parseInt(stats.new_this_month),
           totalCategories: parseInt(stats.total_categories)
         },
-        categories: categoriesResult.rows
+        categories: categoriesResult?.rows || []
       }
     })
 
@@ -179,7 +179,7 @@ export async function POST(request: NextRequest) {
       [finalSlug]
     )
 
-    if (existingSlugResult.rows.length > 0) {
+    if ((existingSlugResult?.rows?.length || 0) > 0) {
       finalSlug = `${finalSlug}-${Date.now()}`
     }
 
@@ -204,7 +204,7 @@ export async function POST(request: NextRequest) {
       ]
     )
 
-    const createdPost = result.rows[0]
+    const createdPost = result?.rows?.[0]
     
     // Trigger client site cache revalidation (async, don't wait for completion)
     revalidateAfterBlogChange(createdPost.slug)

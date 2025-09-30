@@ -1,14 +1,18 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Turbo pack configuration for development
-  turbopack: {
-    rules: {
-      '*.svg': {
-        loaders: ['@svgr/webpack'],
-        as: '*.js',
-      },
-    },
+  // Webpack configuration for SVG handling
+  webpack: (config, { isServer }) => {
+    config.module.rules.push({
+      test: /\.svg$/,
+      use: ['@svgr/webpack'],
+    });
+    return config;
+  },
+
+  // ISR Configuration
+  experimental: {
+    optimizePackageImports: ['lucide-react'],
   },
   
   // Image optimization
@@ -30,16 +34,9 @@ const nextConfig: NextConfig = {
   // Remove DATABASE_URL and JWT_SECRET from env
   
   // Production optimizations
-  output: 'standalone', // Enable for Docker deployment
   poweredByHeader: false, // Remove "X-Powered-By: Next.js" header
   trailingSlash: false,
   compress: true,
-  
-  // Build optimization
-  experimental: {
-    optimizeCss: true,
-    optimizePackageImports: ['lucide-react'],
-  },
   
   // Security headers
   async headers() {

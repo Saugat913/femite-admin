@@ -27,7 +27,7 @@ export async function GET(
       [id]
     )
 
-    if (result.rows.length === 0) {
+    if (!result || result.rows.length === 0) {
       return NextResponse.json(
         { success: false, error: 'Product not found' },
         { status: 404 }
@@ -83,7 +83,7 @@ export async function PUT(
       [id]
     )
 
-    if (existingProduct.rows.length === 0) {
+    if (!existingProduct || existingProduct.rows.length === 0) {
       return NextResponse.json(
         { success: false, error: 'Product not found' },
         { status: 404 }
@@ -181,7 +181,7 @@ export async function PUT(
 
     return NextResponse.json({
       success: true,
-      data: updatedProduct.rows[0],
+      data: updatedProduct?.rows[0],
       message: 'Product updated successfully'
     })
 
@@ -207,7 +207,7 @@ export async function DELETE(
       [id]
     )
 
-    if (existingProduct.rows.length === 0) {
+    if (!existingProduct || existingProduct.rows.length === 0) {
       return NextResponse.json(
         { success: false, error: 'Product not found' },
         { status: 404 }
@@ -220,7 +220,7 @@ export async function DELETE(
       [id]
     )
 
-    if (parseInt(orderItems.rows[0].count) > 0) {
+    if (orderItems?.rows[0]?.count && parseInt(orderItems.rows[0].count) > 0) {
       return NextResponse.json(
         { success: false, error: 'Cannot delete product that has been ordered' },
         { status: 400 }

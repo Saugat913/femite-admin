@@ -19,7 +19,7 @@ export async function GET(
       WHERE bp.id = $1
     `, [id])
 
-    if (result.rows.length === 0) {
+    if (!result || result.rows.length === 0) {
       return NextResponse.json(
         { success: false, error: 'Blog post not found' },
         { status: 404 }
@@ -75,7 +75,7 @@ export async function PUT(
       [id]
     )
 
-    if (existingPost.rows.length === 0) {
+    if (!existingPost || existingPost.rows.length === 0) {
       return NextResponse.json(
         { success: false, error: 'Blog post not found' },
         { status: 404 }
@@ -91,7 +91,7 @@ export async function PUT(
         [slug, id]
       )
 
-      if (existingSlugResult.rows.length > 0) {
+      if ((existingSlugResult?.rows?.length || 0) > 0) {
         return NextResponse.json(
           { success: false, error: 'A blog post with this slug already exists' },
           { status: 400 }
@@ -130,7 +130,7 @@ export async function PUT(
       meta_title, meta_description, id
     ])
 
-    const updatedPost = result.rows[0]
+    const updatedPost = result?.rows[0]
     
     // Trigger client site cache revalidation (async, don't wait for completion)
     // Use both old and new slug in case slug was changed
@@ -167,7 +167,7 @@ export async function DELETE(
       [id]
     )
 
-    if (existingPost.rows.length === 0) {
+    if (!existingPost || existingPost.rows.length === 0) {
       return NextResponse.json(
         { success: false, error: 'Blog post not found' },
         { status: 404 }

@@ -1,12 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { query } from '@/lib/db'
+import { cachedQuery, CACHE_TTL, CACHE_TAGS } from '@/lib/cache'
+import { unstable_cache } from 'next/cache'
 
 export async function GET(request: NextRequest) {
   try {
-    // Get today's date for calculations
-    const today = new Date()
-    const thirtyDaysAgo = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000))
-    const sevenDaysAgo = new Date(today.getTime() - (7 * 24 * 60 * 60 * 1000))
+    // Check for cache bypass parameter (for admin refresh)
+    const url = new URL(request.url)
+    const bypassCache = url.searchParams.get('refresh') === 'true'
+    
+    if (bypassCache) {
+      console.log('Dashboard cache bypass requested')
+    }
+
+    // Use Next.js unstable_cache for ISR compatibility
+    const getDashboardData = unstable_cache(
+      async () => {
+        console.log('Fetching fresh dashboard data from database')
+        
+        // Get today's date for calculations
+        const today = new Date()
+        const thirtyDaysAgo = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000))
+        const sevenDaysAgo = new Date(today.getTime() - (7 * 24 * 60 * 60 * 1000))
 
     // Run all queries in parallel for better performance
     const [
@@ -137,68 +152,80 @@ export async function GET(request: NextRequest) {
     // Process the data
     const dashboard = {
       overview: {
-        totalOrders: parseInt(totalOrdersResult.rows[0]?.total_orders || '0'),
-        paidOrders: parseInt(totalOrdersResult.rows[0]?.paid_orders || '0'),
-        processingOrders: parseInt(totalOrdersResult.rows[0]?.processing_orders || '0'),
-        shippedOrders: parseInt(totalOrdersResult.rows[0]?.shipped_orders || '0'),
+        totalOrders: parseInt(totalOrdersResult?.rows[0]?.total_orders || '0'),
+        paidOrders: parseInt(totalOrdersResult?.rows[0]?.paid_orders || '0'),
+        processingOrders: parseInt(totalOrdersResult?.rows[0]?.processing_orders || '0'),
+        shippedOrders: parseInt(totalOrdersResult?.rows[0]?.shipped_orders || '0'),
         
-        totalRevenue: parseFloat(totalRevenueResult.rows[0]?.total_revenue || '0'),
-        monthlyRevenue: parseFloat(totalRevenueResult.rows[0]?.monthly_revenue || '0'),
-        weeklyRevenue: parseFloat(totalRevenueResult.rows[0]?.weekly_revenue || '0'),
+        totalRevenue: parseFloat(totalRevenueResult?.rows[0]?.total_revenue || '0'),
+        monthlyRevenue: parseFloat(totalRevenueResult?.rows[0]?.monthly_revenue || '0'),
+        weeklyRevenue: parseFloat(totalRevenueResult?.rows[0]?.weekly_revenue || '0'),
         
-        totalCustomers: parseInt(totalCustomersResult.rows[0]?.total_customers || '0'),
-        monthlyNewCustomers: parseInt(totalCustomersResult.rows[0]?.monthly_new_customers || '0'),
-        adminUsers: parseInt(totalCustomersResult.rows[0]?.admin_users || '0'),
+        totalCustomers: parseInt(totalCustomersResult?.rows[0]?.total_customers || '0'),
+        monthlyNewCustomers: parseInt(totalCustomersResult?.rows[0]?.monthly_new_customers || '0'),
+        adminUsers: parseInt(totalCustomersResult?.rows[0]?.admin_users || '0'),
         
-        totalProducts: parseInt(totalProductsResult.rows[0]?.total_products || '0'),
-        inStockProducts: parseInt(totalProductsResult.rows[0]?.in_stock_products || '0'),
-        lowStockProducts: parseInt(totalProductsResult.rows[0]?.low_stock_products || '0'),
-        outOfStockProducts: parseInt(totalProductsResult.rows[0]?.out_of_stock_products || '0'),
+        totalProducts: parseInt(totalProductsResult?.rows[0]?.total_products || '0'),
+        inStockProducts: parseInt(totalProductsResult?.rows[0]?.in_stock_products || '0'),
+        lowStockProducts: parseInt(totalProductsResult?.rows[0]?.low_stock_products || '0'),
+        outOfStockProducts: parseInt(totalProductsResult?.rows[0]?.out_of_stock_products || '0'),
         
-        totalNewsletterSubscribers: parseInt(newsletterSubscribersResult.rows[0]?.total_subscribers || '0'),
-        monthlyNewSubscribers: parseInt(newsletterSubscribersResult.rows[0]?.monthly_new_subscribers || '0'),
+        totalNewsletterSubscribers: parseInt(newsletterSubscribersResult?.rows[0]?.total_subscribers || '0'),
+        monthlyNewSubscribers: parseInt(newsletterSubscribersResult?.rows[0]?.monthly_new_subscribers || '0'),
       },
       
-      recentOrders: recentOrdersResult.rows.map(order => ({
+      recentOrders: recentOrdersResult?.rows.map(order => ({
         id: order.id,
         amount: parseFloat(order.total_amount || '0'),
         status: order.status_v2,
         customerEmail: order.customer_email,
         itemCount: parseInt(order.item_count || '0'),
         createdAt: order.created_at
-      })),
+      })) || [],
       
-      lowStockProducts: lowStockProductsResult.rows.map(product => ({
+      lowStockProducts: lowStockProductsResult?.rows.map(product => ({
         id: product.id,
         name: product.name,
         stock: product.stock,
         price: parseFloat(product.price || '0')
-      })),
+      })) || [],
       
-      monthlyRevenue: monthlyRevenueResult.rows.map(row => ({
+      monthlyRevenue: monthlyRevenueResult?.rows.map(row => ({
         month: row.month,
         revenue: parseFloat(row.revenue || '0'),
         orderCount: parseInt(row.order_count || '0')
-      })),
+      })) || [],
       
-      weeklyOrders: weeklyOrdersResult.rows.map(row => ({
+      weeklyOrders: weeklyOrdersResult?.rows.map(row => ({
         week: row.week,
         orderCount: parseInt(row.order_count || '0')
-      })),
+      })) || [],
       
-      topProducts: topProductsResult.rows.map(product => ({
+      topProducts: topProductsResult?.rows.map(product => ({
         id: product.id,
         name: product.name,
         price: parseFloat(product.price || '0'),
         totalSold: parseInt(product.total_sold || '0'),
         totalRevenue: parseFloat(product.total_revenue || '0')
-      }))
+      })) || []
     }
 
-    return NextResponse.json({
-      success: true,
-      data: dashboard
-    })
+        return {
+          success: true,
+          data: dashboard,
+          cached: !bypassCache,
+          timestamp: new Date().toISOString()
+        }
+      },
+      ['dashboard-data'],
+      {
+        revalidate: bypassCache ? 0 : 300, // 5 minutes ISR revalidation
+        tags: [CACHE_TAGS.DASHBOARD, CACHE_TAGS.ORDERS, CACHE_TAGS.PRODUCTS, CACHE_TAGS.ANALYTICS]
+      }
+    )
+
+    const result = await getDashboardData()
+    return NextResponse.json(result)
     
   } catch (error) {
     console.error('GET /api/admin/dashboard error:', error)
