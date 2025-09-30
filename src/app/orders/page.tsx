@@ -18,6 +18,7 @@ import {
 import Link from 'next/link'
 import { ordersApi } from '@/lib/api'
 import type { Order, PaginatedResponse, SearchFilters, OrderStatus } from '@/types'
+import { formatCurrencyFromCents } from '@/lib/utils/format'
 
 interface OrdersPageState {
   orders: Order[]
@@ -98,7 +99,7 @@ function OrderRow({ order, onSelect, isSelected }: {
         </div>
       </td>
       <td className="px-4 py-3 text-sm font-medium text-black">
-        ${(order.total / 100).toFixed(2)}
+        {formatCurrencyFromCents(order.total)}
       </td>
       <td className="px-4 py-3">
         <OrderStatusBadge status={order.status} />

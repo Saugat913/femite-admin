@@ -20,6 +20,7 @@ import {
 import Link from 'next/link'
 import { ordersApi } from '@/lib/api'
 import type { Order, OrderStatus } from '@/types'
+import { formatCurrencyFromCents } from '@/lib/utils/format'
 
 function OrderStatusBadge({ status }: { status: OrderStatus }) {
   const getStatusConfig = (status: OrderStatus) => {
@@ -208,12 +209,12 @@ export default function OrderDetailPage() {
                       <div>
                         <h3 className="font-medium text-black">{item.product?.name || 'Product'}</h3>
                         <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
-                        <p className="text-sm text-gray-500">Unit Price: ${(item.price / 100).toFixed(2)}</p>
+                        <p className="text-sm text-gray-500">Unit Price: {formatCurrencyFromCents(item.price)}</p>
                       </div>
                     </div>
                     <div className="text-right">
                       <p className="font-semibold text-black">
-                        ${((item.price * item.quantity) / 100).toFixed(2)}
+                        {formatCurrencyFromCents(item.price * item.quantity)}
                       </p>
                     </div>
                   </div>
@@ -231,7 +232,7 @@ export default function OrderDetailPage() {
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Subtotal:</span>
-                  <span className="text-black">${(order.total / 100).toFixed(2)}</span>
+                  <span className="text-black">{formatCurrencyFromCents(order.total)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Shipping:</span>
@@ -243,7 +244,7 @@ export default function OrderDetailPage() {
                 </div>
                 <div className="flex justify-between text-lg font-semibold pt-2 border-t border-gray-100">
                   <span className="text-black">Total:</span>
-                  <span className="text-black">${(order.total / 100).toFixed(2)}</span>
+                  <span className="text-black">{formatCurrencyFromCents(order.total)}</span>
                 </div>
               </div>
             </div>
