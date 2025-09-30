@@ -7,7 +7,9 @@
       "use": "@vercel/next"
     }
   ],
-  "regions": ["iad1"],
+  "regions": [
+    "iad1"
+  ],
   "functions": {
     "src/app/api/**/*.ts": {
       "maxDuration": 30
@@ -73,6 +75,5 @@
   "installCommand": "npm install",
   "buildCommand": "npm run vercel-build",
   "outputDirectory": ".next",
-  "framework": "nextjs",
- 
+  "framework": "nextjs"
 }
